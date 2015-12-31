@@ -6,7 +6,8 @@ import Random exposing (float, generate, initialSeed)
 
 main : Element
 main =
-  collage 300 300
+--    show (toListOfPairs (appendFst (genCrazyQuad 42)))
+  collage 400 400
     [ crazyPoly
       |> outlined defaultLine
         --|> filled blue
@@ -14,26 +15,29 @@ main =
         --|> scale 20
     ]
 
-
-
-{-
-gen = Random.float 0 1
-seed0 = Random.initialSeed 42
-v = generate gen seed0
--}
-
 -- convert to HTML Polygon
 crazyPoly = polygon crazyQuad
 
 
-crazyQuad = square |> scalePts 30
+crazyQuad = genCrazyQuad 42 |> scalePts 100
 
 
-square = [ (-1,1), (1,1), (1,-1), (-1,-1) ]
-
+genCrazyQuad seed = 
+    let seed0 = initialSeed seed
+        (x0,seed1) = generate (float -1 0) seed0
+        (y0,seed2) = generate (float  0 1) seed1
+        (x1,seed3) = generate (float  0 1) seed2
+        (y1,seed4) = generate (float  0 1) seed3
+        length = norm ((x1,x2) `minus` (x0,y0))
+        (x2,seed5) = generate (float  0 1) seed4
+        (y2,seed6) = generate (float -1 0) seed5
+        (x3,y3)    = (x2 - length, y2)        
+    in 
+        [(x0,y0), (x1,y1), (x2,y2), (x3,y3)]
+        
 
 -- transformation functions
---type alias Point = (Float, Float)
+-- type alias Point = (Float, Float)
 scale s (x,y) = (s*x, s*y)
 move (dx,dy) (x,y) = (x + dx, y + dy)
 rotate rads (x,y) = (cos(rads)*x - sin(rads)*y, sin(rads)*x + cos(rads)*y)
@@ -44,6 +48,32 @@ normalize pt = scale (1.0 / norm pt) pt
 normal (x,y) = normalize (-y, x)
 --  let (x,y) = pt0 `minus` pt1 in
 
+{-
+toCrazyQuad : List Point -> List List a 
+toCrazyQuad ptListQuad = 
+    let
+        withFirstAsLast : List Point
+        withFirstAsLast = ptListQuad ++ [head ptListQuad]  -- add head to back of list
+    in
+        case ptListQuad of
+            [] -> []
+            head::tail -> []
+-}
+ 
+appendFst lst = 
+    case lst of 
+        head::tail -> lst ++ [ head ]
+        [] -> []
 
 
+toListOfPairs lst = 
+    case lst of
+        [] -> []
+        head::tail -> 
+            case tail of 
+                [] -> []
+                nxt::rest -> [head, nxt] :: toListOfPairs tail
+
+    
+            
 scalePts s pts = map (scale s) pts
