@@ -6,7 +6,8 @@ import Random exposing (float, generate, initialSeed)
 
 main : Element
 main =
---    show (toListOfPairs (appendFst (genCrazyQuad 42)))
+--   show <| flatten <| toListOfPairs <| appendFst <| crazyQuad  
+--{-
   collage 400 400
     [ crazyPoly
       |> outlined defaultLine
@@ -14,12 +15,15 @@ main =
         --|> move (-10,0)
         --|> scale 20
     ]
-
+--}
 -- convert to HTML Polygon
-crazyPoly = polygon crazyQuad
+crazyPoly = crazyQuad 
+         |> flatten
+         |> scalePts 100 
+         |> polygon
 
 
-crazyQuad = genCrazyQuad 42 |> scalePts 100
+crazyQuad = genCrazyQuad 42 |> toListOfPairs
 
 
 genCrazyQuad seed = 
@@ -33,6 +37,7 @@ genCrazyQuad seed =
         (y2,seed6) = generate (float -1 0) seed5
         (x3,y3)    = (x2 - length, y2)        
     in 
+        --[ (-1,1), (1,1), (1,-1), (-1,-1) ]
         [(x0,y0), (x1,y1), (x2,y2), (x3,y3)]
         
 
@@ -46,7 +51,7 @@ minus (x0,y0) (x1,y1) = (x0-x1, y0-y1)
 norm (x,y) = sqrt (x*x+y*y)
 normalize pt = scale (1.0 / norm pt) pt
 normal (x,y) = normalize (-y, x)
---  let (x,y) = pt0 `minus` pt1 in
+
 
 {-
 toCrazyQuad : List Point -> List List a 
@@ -74,6 +79,10 @@ toListOfPairs lst =
                 [] -> []
                 nxt::rest -> [head, nxt] :: toListOfPairs tail
 
-    
+
+flatten lst =
+    case lst of
+        [] -> []
+        head::tail -> head ++ flatten tail    
             
 scalePts s pts = map (scale s) pts
