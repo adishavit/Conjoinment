@@ -2,12 +2,12 @@ import List exposing (..)
 import Color exposing (..)
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
-import Random exposing (float, generate, initialSeed)
 import Array
 import Maybe exposing (withDefault)
-import Debug
 
 main : Element
+import Impure
+
 main =
     let 
         poly = toPolygon crazyQuad
@@ -31,18 +31,16 @@ toPolygon poly = poly
                 |> polygon
 
 
-crazyQuad = toPoly <| genCrazyQuad 42
+crazyQuad = toPoly <| genCrazyQuad
 
-
-genCrazyQuad seed = 
-    let seed0 = initialSeed seed
-        (x0,seed1) = generate (float -1 0) seed0
-        (y0,seed2) = generate (float  0 0.5) seed1
-        (x1,seed3) = generate (float  0 1) seed2
-        (y1,seed4) = generate (float  0 0.5) seed3
+genCrazyQuad = 
+    let x0 = negate (Impure.getRandom ())
+        y0 = 0.5 * (Impure.getRandom ())
+        x1 = (Impure.getRandom ())
+        y1 = 0.5 * (Impure.getRandom ())
         length = norm ((x1,y1) `minus` (x0,y0))
-        (x2,seed5) = generate (float  0 1) seed4
-        (y2,seed6) = generate (float -0.5 0) seed5
+        x2 = (Impure.getRandom ())
+        y2 = -0.5 * (Impure.getRandom ())
         (x3,y3)    = (x2 - length, y2)        
     in 
         --[ (-1,1), (1,1), (1,-1), (-1,-1) ]
@@ -70,8 +68,8 @@ genTwin poly =
         movedPoly2 = movePoly (getOffset2 poly) rotPoly
     in
         movedPoly2
-
-        
+    
+    
 
 
 -- transformation functions
