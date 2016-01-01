@@ -11,7 +11,7 @@ main : Element
 main =
     let 
         poly = toPolygon crazyQuad
-        twin = toPolygon (genTwin crazyQuad)
+        twin = toPolygon <| genTwin crazyQuad
     in
    --show <| genCrazyQuad 42 
    --show <|  crazyQuad
@@ -19,9 +19,9 @@ main =
 --{-
     collage 400 400
         [ poly |> filled red
-      --  , poly |> outlined defaultLine
+        , poly |> outlined { defaultLine | color = red }
         , twin |> filled red
-      --  , twin |> outlined defaultLine
+        , twin |> outlined { defaultLine | color = red }
         ]
 --}
 -- convert to HTML Polygon
@@ -50,7 +50,7 @@ genCrazyQuad seed =
 
 genTwin poly =
     let 
-        getLegStartPoint ind pp = 
+        getFirstLegPoint ind pp = 
             let
                 dummy = (0,0)
                 polyArray = Array.fromList pp                
@@ -58,12 +58,12 @@ genTwin poly =
             in
                 withDefault dummy <| head leg0
               
-        getOffset1 pp = neg <| getLegStartPoint 0 pp          
+        getOffset1 pp = neg <| getFirstLegPoint 0 pp          
         getAngle pp = 
-            let (x1,y1) = getLegStartPoint 1 pp 
+            let (x1,y1) = getFirstLegPoint 1 pp 
             in -(atan2 y1 x1)       
 
-        getOffset2 pp = getLegStartPoint 3 pp 
+        getOffset2 pp = getFirstLegPoint 3 pp 
         
         movedPoly = poly |> movePoly (getOffset1 poly)
         rotPoly = movedPoly |> rotatePoly (getAngle movedPoly) 
