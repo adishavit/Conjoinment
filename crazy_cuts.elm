@@ -48,13 +48,12 @@ genCrazyQuad =
 
 genTwin poly =
     let 
-        getFirstLegPoint ind pp = 
-            let
-                dummy = (0,0)
-                polyArray = Array.fromList pp                
-                leg0 = withDefault [] <| Array.get ind polyArray                
-            in
-                withDefault dummy <| head leg0
+        getFirstLegPoint index pp = 
+            Array.fromList pp   |>
+            Array.get index     |>
+            withDefault []      |>
+            head                |>
+            withDefault (0,0)  
               
         getOffset1 pp = neg <| getFirstLegPoint 0 pp          
         getAngle pp = 
