@@ -10,8 +10,9 @@ import Impure
 
 main =
     let 
-        poly = toPolygon crazyQuad
-        twin = toPolygon <| genTwin crazyQuad
+        crazy = crazyQuad
+        poly = toPolygon crazy
+        twin = toPolygon <| genTwin crazy
     in
    --show <| genCrazyQuad 42 
    --show <|  crazyQuad
@@ -19,19 +20,22 @@ main =
 --{-
     collage 400 400
         [ poly |> filled red
-        , poly |> outlined { defaultLine | color = red }
+        , poly |> outlined { defaultLine | color = black }
         , twin |> filled red
-        , twin |> outlined { defaultLine | color = red }
+        , twin |> outlined { defaultLine | color = black }
         ]
 --}
 -- convert to HTML Polygon
 toPolygon poly = poly  
                 |> flatten
-                |> scalePath 100 
+                |> scalePath 120 
                 |> polygon
 
 
-crazyQuad = toPoly <| genCrazyQuad
+crazyQuad = genCrazyQuad |> toPoly
+            |> alterEdge 1 1 0.2 
+            |> alterEdge 3 1 0.2 
+            |> alterEdge 0 2 0.3 
 
 genCrazyQuad = 
     let x0 = negate (Impure.getRandom ())
@@ -67,10 +71,41 @@ genTwin poly =
         movedPoly2 = movePoly (getOffset2 poly) rotPoly
     in
         movedPoly2
-    
-    
 
+-- Edge Alteration
 
+getNewPt p0 p1 direction pos normalOffset = 
+    let
+        q = (scale (1-pos) p0) `plus` (scale pos p1)    
+    in
+        q `plus` (scale normalOffset direction)      
+
+genNewPts edge normalOffsets = 
+    let 
+        p0 = withDefault (0,0) <| head <| edge 
+        p1 = withDefault (0,0) <| head <| List.reverse edge
+        direction = p1 `minus` p0 |> normal
+        count = length normalOffsets
+        positions = map (\p -> p / (toFloat(count+1))) [1.0 ..toFloat(count)]
+        newPoints = map2 (getNewPt p0 p1 direction) positions normalOffsets 
+    in
+        [p0] ++ newPoints ++ [p1]
+
+alterEdge edgeInd count lengthScale poly = 
+    let
+        edges = [0.. ((length poly)-1)]
+        normalOffsets = map (\_ -> lengthScale * (Impure.getRandom ()) * (if (Impure.getRandom ()) < 0.5 then -1 else 1)) [1..count]
+        apply_if theEdge index edge  = 
+            if index == theEdge then genNewPts edge normalOffsets else edge                                    
+        apply_if2 index edge  = 
+            if index == 2 then genNewPts (List.reverse edge) normalOffsets |> List.reverse else edge                                    
+    in
+--        map2 (apply_if edgeInd) edges poly
+        case edgeInd of 
+            0 -> (map2 (apply_if 0) edges poly) |> map2 apply_if2 edges 
+            otherwise -> (map2 (apply_if edgeInd) edges poly) 
+
+        
 -- transformation functions
 type alias Point = (Float, Float)
 neg (x,y) = (-x,-y)
