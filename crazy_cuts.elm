@@ -33,9 +33,9 @@ toPolygon poly = poly
 
 
 crazyQuad = genCrazyQuad |> toPoly
-            |> alterEdge 1 1 0.2 
-            |> alterEdge 3 1 0.2 
-            |> alterEdge 0 2 0.3 
+            |> alterEdge 1 2 0.2 
+            |> alterEdge 3 2 0.2 
+            |> alterEdge 0 2 0.5 
 
 genCrazyQuad = 
     let x0 = negate (Impure.getRandom ())
@@ -100,7 +100,6 @@ alterEdge edgeInd count lengthScale poly =
         apply_if2 index edge  = 
             if index == 2 then genNewPts (List.reverse edge) normalOffsets |> List.reverse else edge                                    
     in
---        map2 (apply_if edgeInd) edges poly
         case edgeInd of 
             0 -> (map2 (apply_if 0) edges poly) |> map2 apply_if2 edges 
             otherwise -> (map2 (apply_if edgeInd) edges poly) 
