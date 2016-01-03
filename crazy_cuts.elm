@@ -4,25 +4,32 @@ import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 import Array
 import Maybe exposing (withDefault)
+import Char
+import Keyboard
+import Signal 
 
-main : Element
 import Impure
 
-main =
+--main : Element
+main = 
+    Signal.map display Keyboard.presses
+    
+display keyCode =
     let 
         crazy = crazyQuad
         poly = toPolygon crazy
         twin = toPolygon <| genTwin crazy
+        lineColor = { defaultLine | color = if (Char.fromCode keyCode) == 's' then black else red }
     in
    --show <| genCrazyQuad 42 
    --show <|  crazyQuad
    --show <| poly  
 --{-
-    collage 400 400
+    collage 400 400 <|
         [ poly |> filled red
-        , poly |> outlined { defaultLine | color = black }
-        , twin |> filled red
-        , twin |> outlined { defaultLine | color = black }
+        , twin |> filled red 
+        , poly |> outlined lineColor
+        , twin |> outlined lineColor
         ]
 --}
 -- convert to HTML Polygon
@@ -33,8 +40,8 @@ toPolygon poly = poly
 
 
 crazyQuad = genCrazyQuad |> toPoly
-            |> alterEdge 1 2 0.2 
-            |> alterEdge 3 2 0.2 
+            |> alterEdge 1 1 0.1 
+            |> alterEdge 3 1 0.1 
             |> alterEdge 0 2 0.5 
 
 genCrazyQuad = 
