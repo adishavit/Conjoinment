@@ -42,7 +42,7 @@ toPolygon poly = poly
 crazyQuad = genCrazyQuad |> toPoly
             |> alterEdge 1 1 0.1 
             |> alterEdge 3 1 0.1 
-            |> alterEdge 0 2 0.5 
+            |> alterEdge 0 1 0.5 
 
 genCrazyQuad = 
     let x0 = negate (Impure.getRandom ())
